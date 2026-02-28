@@ -18,24 +18,36 @@ function loadUser(user) {
     return { messages: [], summary: "" }
   }
 
-  const raw = JSON.parse(fs.readFileSync(file, "utf-8"))
+  try {
+    const raw = fs.readFileSync(file, "utf-8")
 
-  // 🔥 MIGRATION LOGIC
-  if (Array.isArray(raw)) {
-    return {
-      messages: raw,
-      summary: ""
+    if (!raw || raw.trim() === "") {
+      return { messages: [], summary: "" }
     }
-  }
 
-  if (!raw.messages) {
-    return {
-      messages: [],
-      summary: ""
+    const parsed = JSON.parse(raw)
+
+    // Migration logic
+    if (Array.isArray(parsed)) {
+      return {
+        messages: parsed,
+        summary: ""
+      }
     }
-  }
 
-  return raw
+    if (!parsed.messages) {
+      return {
+        messages: [],
+        summary: ""
+      }
+    }
+
+    return parsed
+
+  } catch (err) {
+    console.warn("Memory corrupted, resetting:", user)
+    return { messages: [], summary: "" }
+  }
 }
 
 function saveUser(user, data) {

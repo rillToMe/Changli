@@ -12,7 +12,13 @@
   "dependencies": {
     "@whiskeysockets/baileys": "^7.0.0-rc.9",
     "axios": "^1.13.5",
+    "bcrypt": "^6.0.0",
+    "chart.js": "^4.5.1",
+    "cheerio": "^1.2.0",
+    "cors": "^2.8.6",
     "dotenv": "^17.3.1",
+    "express": "^5.2.1",
+    "express-session": "^1.19.0",
     "groq-sdk": "^0.37.0",
     "pino": "^10.3.1",
     "pino-pretty": "^13.1.3",

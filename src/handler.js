@@ -64,6 +64,7 @@ async function messageHandler(sock, { messages, type }) {
         async (ctx, next) => {
             if (ctx.command) {
                 await ctx.command.execute(ctx.sock, ctx, ctx.args)
+                return
             }
             await next()
         },
@@ -86,16 +87,6 @@ async function messageHandler(sock, { messages, type }) {
         return
     }
   }
-
-  // 💾 Simpan memory
-  add(rawParticipant, {
-    role: "user",
-    content: prompt
-  })
-
-  logger.debug(load()[rawParticipant])
-
-  console.log("Memory:", load()[rawParticipant])
 
 }
 

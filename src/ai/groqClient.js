@@ -49,7 +49,10 @@ async function askGroq(messages, attempt = 0) {
             max_tokens: 500
         })
 
-        return res.choices[0].message.content
+        return {
+            text: res.choices[0].message.content,
+            usage: res.usage || {}
+        }
 
     } catch (err) {
         const status = err.status || err.response?.status
@@ -57,7 +60,7 @@ async function askGroq(messages, attempt = 0) {
         if (status === 429 || status === 401 || status === 402 || status === 503) {
             console.warn("Key rate-limited or invalid. Cooling down 60s.")
             entry.cooldownUntil = Date.now() + 60000
-            return askGroq(messages)
+            return askGroq(messages, attempt + 1)
         }
 
         throw err

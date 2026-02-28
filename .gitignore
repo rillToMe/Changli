@@ -9,3 +9,6 @@ data
 memory.json
 
 logs
+
+admin
+src/ai/rag/

@@ -1,22 +1,25 @@
 const { buildContext } = require("../ai/contextBuilder")
 const { addMemory, compressMemory } = require("../ai/memory")
 const { askGroq } = require("../ai/groqClient")
-
+const { logUsage } = require("../ai/usage")
 
 module.exports = async function aiFallbackMiddleware(ctx) {
   const { sock, jid, participant, prompt } = ctx
 
   try {
+    addMemory(participant, "user", prompt)
+
     const messages = buildContext(participant, prompt)
 
-    const reply = await askGroq(messages)
+   const result = await askGroq(messages)
 
-    await sock.sendMessage(jid, {
-      text: reply
-    })
+   await sock.sendMessage(jid, { 
+    text: result.text
+   })
 
-    addMemory(participant, "user", prompt)
-    addMemory(participant, "assistant", reply)
+   addMemory(participant, "assistant", result.text)
+
+   logUsage(participant, result.usage, 0)
 
     await compressMemory(participant, askGroq)
 

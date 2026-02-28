@@ -44,13 +44,6 @@ Bot ini dirancang untuk grup kecil dengan fokus pada:
 - Multistream (console + file)
 - Safe Linux deployment
 
-### Admin Dashboard
-- Express server
-- Login system
-- Token usage chart
-- System monitoring
-- Manual refresh
-
 ---
 
 ## 📁 Project Structure

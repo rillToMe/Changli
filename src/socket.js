@@ -1,16 +1,19 @@
-const {
-  default: makeWASocket,
-  useMultiFileAuthState,
-  fetchLatestBaileysVersion,
-  makeCacheableSignalKeyStore
-} = require("@whiskeysockets/baileys")
-
 const pino = require("pino")
 const qrcode = require("qrcode-terminal")
 const messageHandler = require("./handler")
 const logger = require("./utils/logger")
 
 async function startSocket() {
+  const {
+    default: makeWASocket,
+    useMultiFileAuthState,
+    fetchLatestBaileysVersion,
+    makeCacheableSignalKeyStore,
+    DisconnectReason
+  } = await import("@whiskeysockets/baileys")
+
+  const { Boom } = await import("@hapi/boom")
+
   const { state, saveCreds } = await useMultiFileAuthState("auth")
   const { version } = await fetchLatestBaileysVersion()
 
@@ -26,7 +29,7 @@ async function startSocket() {
 
   sock.ev.on("creds.update", saveCreds)
 
-  sock.ev.on("connection.update", ({ connection, qr }) => {
+  sock.ev.on("connection.update", ({ connection, lastDisconnect, qr }) => {
     if (qr) {
       logger.info("Scan QR:")
       qrcode.generate(qr, { small: true })
@@ -37,7 +40,14 @@ async function startSocket() {
     }
 
     if (connection === "close") {
-      logger.warn("Connection closed")
+      const statusCode = new Boom(lastDisconnect?.error)?.output?.statusCode
+      const shouldReconnect = statusCode !== DisconnectReason.loggedOut
+
+      logger.warn(`Connection closed, status: ${statusCode}, reconnect: ${shouldReconnect}`)
+
+      if (shouldReconnect) {
+        startSocket()
+      }
     }
   })
 

@@ -1,6 +1,7 @@
 node_modules
 .env
 auth
+auth.zip
 test_mistrall.js
 test-cerebras.js
 test-openrouter.js
@@ -12,3 +13,4 @@ logs
 
 admin
 src/ai/rag/
+

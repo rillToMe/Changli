@@ -24,9 +24,11 @@ async function messageHandler(sock, { messages, type }) {
         msg.message.extendedTextMessage?.text
 
     if (!text) return
-    if (!text.startsWith(process.env.PREFIX)) return
 
-    const prompt = text.slice(process.env.PREFIX.length).trim()
+    const PREFIX = process.env.PREFIX.trim()
+    if (!text.startsWith(PREFIX)) return
+    
+    const prompt = text.slice(PREFIX.length).trim()
     if (!prompt) return
 
     const parts = prompt.split(" ")

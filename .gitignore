@@ -14,3 +14,5 @@ logs
 admin
 src/ai/rag/
 
+*.env text eol=lf
+*.js text eol=lf

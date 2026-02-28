@@ -24,19 +24,21 @@ async function messageHandler(sock, { messages, type }) {
         msg.message.extendedTextMessage?.text
 
     if (!text) return
+    if (!text.startsWith(process.env.PREFIX)) return
 
-    const PREFIX = process.env.PREFIX.trim()
-    if (!text.startsWith(PREFIX)) return
-    
-    const prompt = text.slice(PREFIX.length).trim()
+    const prompt = text.slice(process.env.PREFIX.length).trim()
     if (!prompt) return
-
+    
     const parts = prompt.split(" ")
     const commandName = parts[0].toLowerCase()
 
     console.log("RAW PROMPT:", prompt)
     console.log("COMMAND NAME:", commandName)
     console.log("AVAILABLE:", Object.keys(commands))
+
+    console.log("PREFIX:", JSON.stringify(process.env.PREFIX))
+    console.log("COMMAND NAME:", JSON.stringify(commandName))
+    console.log("AVAILABLE:", JSON.stringify(Object.keys(commands)))
 
     const args = parts.slice(1)
 

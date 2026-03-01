@@ -31,9 +31,14 @@ async function messageHandler(sock, { messages, type }) {
         null
 
     if (!text) return
-    if (!text.startsWith(process.env.PREFIX)) return
+    const PREFIX = process.env.PREFIX.trim()
+    const ALIASES = [PREFIX, ".changli", ".ch"]
 
-    const prompt = text.slice(process.env.PREFIX.length).trim()
+    const matchedAlias = ALIASES.find(alias => text.toLowerCase().startsWith(alias.toLowerCase()))
+    if (!matchedAlias) return
+
+    const prompt = text.slice(matchedAlias.length).trim()
+
     if (!prompt) return
     
     const parts = prompt.split(" ")

@@ -4,6 +4,9 @@ module.exports = {
   name: "memory",
   permission: "admin",
   cooldown: 5000,
+  description: "Lihat isi memory percakapan AI kamu",
+  usage: ".ai memory",
+  
   execute: async (sock, ctx) => {
     const data = load()[ctx.participant] || []
 

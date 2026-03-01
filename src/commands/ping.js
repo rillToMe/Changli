@@ -2,6 +2,8 @@ module.exports = {
   name: "ping",
   permission: "public",
   cooldown: 5000,
+  description: "Cek status dan latency bot",
+  usage: ".ai ping",
 
   execute: async (sock, ctx) => {
     const start = Date.now()

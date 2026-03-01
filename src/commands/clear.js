@@ -1,6 +1,9 @@
 module.exports = {
   name: "clear",
   permission: "admin",
+  description: "Hapus memory percakapan AI kamu",
+  usage: ".ai clear",
+  
   cooldown: 10000,
   execute: async (sock, ctx) => {
     const fs = require("fs")

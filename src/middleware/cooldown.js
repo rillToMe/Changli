@@ -1,6 +1,6 @@
 const { isOnCooldown } = require("../utils/cooldown")
 
-const GLOBAL_COOLDOWN = 2000 // 2 detik global
+const GLOBAL_COOLDOWN = 2000
 
 module.exports = async function cooldownMiddleware(ctx, next) {
     if (!ctx.command) {
@@ -9,7 +9,7 @@ module.exports = async function cooldownMiddleware(ctx, next) {
     
     const { command, participant, commandName, sock, jid } = ctx
 
-    // 🔹 GLOBAL COOLDOWN
+    // GLOBAL COOLDOWN
     const globalKey = `${participant}:global`
     const globalRemaining = isOnCooldown(globalKey, GLOBAL_COOLDOWN)
 
@@ -20,7 +20,7 @@ module.exports = async function cooldownMiddleware(ctx, next) {
         return
     }
 
-    // 🔹 PER COMMAND COOLDOWN
+    // PER COMMAND COOLDOWN
     const duration = command.cooldown || 0
 
     if (duration > 0) {

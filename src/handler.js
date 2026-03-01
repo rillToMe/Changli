@@ -21,7 +21,14 @@ async function messageHandler(sock, { messages, type }) {
 
     const text =
         msg.message.conversation ||
-        msg.message.extendedTextMessage?.text
+        msg.message.extendedTextMessage?.text ||
+        msg.message.imageMessage?.caption ||  
+        null
+
+    const quotedText =
+        msg.message?.extendedTextMessage?.contextInfo?.quotedMessage?.conversation ||
+        msg.message?.extendedTextMessage?.contextInfo?.quotedMessage?.extendedTextMessage?.text ||
+        null
 
     if (!text) return
     if (!text.startsWith(process.env.PREFIX)) return
@@ -58,6 +65,7 @@ async function messageHandler(sock, { messages, type }) {
         args,
         prompt,
         commandList,
+        quotedText,
         isAdmin: participant === process.env.ADMIN_LID,
         isGroup: jid.endsWith("@g.us")
     }

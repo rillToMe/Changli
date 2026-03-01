@@ -33,6 +33,11 @@ module.exports = async function aiFallbackMiddleware(ctx) {
 
     if (imageMessage) {
 
+      await sock.sendPresenceUpdate("composing", jid)
+      await sock.sendMessage(jid, {
+        text: "Sedang menganalisis gambar… ⏳"
+      })
+
       const mimeType = imageMessage.mimetype || "image/jpeg"
       const base64 = await downloadImage(sock, targetMsg)
 

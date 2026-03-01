@@ -1,5 +1,5 @@
 const { askCerebras } = require("../ai/cerebrasClient")
-const { Supadata } = require("@supadata/js")
+const { getTranscript } = require("../ai/transcriptEngine")
 
 function extractVideoId(input) {
   const patterns = [
@@ -16,10 +16,10 @@ function extractVideoId(input) {
 
 module.exports = {
   name: "yt-ts",
-  permission: "public",
-  cooldown: 10000,
   description: "Ringkas video YouTube dari transcript",
-  usage: ".ai yt-ts https://youtu.be/xxxxx",
+  usage: ".ai yt-rs https://youtu.be/xxxxx",
+  permission: "public",
+  cooldown: 30000,
 
   execute: async (sock, ctx) => {
     const { jid, args } = ctx
@@ -27,16 +27,14 @@ module.exports = {
 
     if (!url) {
       await sock.sendMessage(jid, {
-        text: "❌ Tulis URL YouTube-nya\nContoh: `.ai yt-ts https://youtu.be/xxxxx`"
+        text: "❌ Kasih URL YouTube-nya\nContoh: `.ai yt-rs https://youtu.be/xxxxx`"
       })
       return
     }
 
     const videoId = extractVideoId(url)
     if (!videoId) {
-      await sock.sendMessage(jid, {
-        text: "❌ URL tidak valid."
-      })
+      await sock.sendMessage(jid, { text: "❌ URL tidak valid." })
       return
     }
 
@@ -44,38 +42,26 @@ module.exports = {
       text: "⏳ Mengambil transcript, tunggu sebentar..."
     })
 
-    let transcript = ""
+    let transcript
     try {
-      const supadata = new Supadata({ apiKey: process.env.SUPADATA_API_KEY })
-
-      const result = await supadata.youtube.transcript({
-        videoId,
-        text: true  
-      })
-
-      transcript = typeof result.content === "string"
-        ? result.content
-        : result.content?.map(s => s.text).join(" ") || ""
-
-      transcript = transcript.replace(/\[.*?\]/g, "").trim()
-
+      transcript = await getTranscript(videoId)
     } catch (err) {
       console.error("Transcript error:", err.message)
       await sock.sendMessage(jid, {
-        text: "❌ Gagal mengambil transcript. Video mungkin tidak punya subtitle."
+        text: "❌ Gagal mengambil transcript. Coba lagi nanti."
       }, { quoted: waitMsg })
       return
     }
 
-    if (!transcript) {
+    if (!transcript || transcript.length < 50) {
       await sock.sendMessage(jid, {
-        text: "❌ Transcript kosong untuk video ini."
+        text: "❌ Transcript tidak tersedia untuk video ini."
       }, { quoted: waitMsg })
       return
     }
 
-    const trimmed = transcript.length > 12000
-      ? transcript.slice(0, 12000) + "... [dipotong]"
+    const trimmed = transcript.length > 30000
+      ? transcript.slice(0, 30000) + "... [dipotong]"
       : transcript
 
     let result
@@ -83,7 +69,7 @@ module.exports = {
       result = await askCerebras([
         {
           role: "system",
-          content: "Kamu adalah asisten yang bertugas merangkum transcript video YouTube. Buat ringkasan yang jelas, terstruktur, dan mudah dipahami dalam bahasa Indonesia. Sertakan poin-poin utama yang dibahas. PENTING: Jangan gunakan simbol markdown seperti *, **, #, ##, ###, |, atau tanda formatting lainnya. Gunakan teks biasa saja. Boleh gunakan angka dan tanda baca normal seperti titik, koma, tanda tanya, dan tanda seru. Untuk judul bagian gunakan huruf kapital."
+          content: "Kamu adalah asisten yang bertugas merangkum transcript video YouTube. Buat ringkasan yang jelas, terstruktur, dan mudah dipahami dalam bahasa Indonesia. Sertakan poin-poin utama. Jangan gunakan simbol markdown seperti *, **, #, ###, |. Gunakan teks biasa. Untuk judul bagian gunakan huruf kapital."
         },
         {
           role: "user",
@@ -98,8 +84,14 @@ module.exports = {
       return
     }
 
+    const cleanText = result.text
+      .replace(/#{1,6}\s?/g, "")
+      .replace(/\*{1,2}([^*]+)\*{1,2}/g, "$1")
+      .replace(/\|/g, "")
+      .trim()
+
     await sock.sendMessage(jid, {
-      text: `📝 *Ringkasan Video*\n\n${result.text}`
+      text: `📝 Ringkasan Video\n\n${cleanText}`
     }, { quoted: waitMsg })
   }
 }

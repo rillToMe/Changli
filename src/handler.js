@@ -1,5 +1,4 @@
 const { isAdmin, isAllowedGroup } = require("./config/access")
-const { add, load } = require("./memory/memory")
 const logger = require("./utils/logger")
 const { commands, commandList } = require("./commands")
 const { isOnCooldown } = require("./utils/cooldown")

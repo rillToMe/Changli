@@ -17,7 +17,7 @@ function extractVideoId(input) {
 module.exports = {
   name: "yt-ts",
   permission: "public",
-  cooldown: 30000,
+  cooldown: 10000,
   description: "Ringkas video YouTube dari transcript",
   usage: ".ai yt-ts https://youtu.be/xxxxx",
 
